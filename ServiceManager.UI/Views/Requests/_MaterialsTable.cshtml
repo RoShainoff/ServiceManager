@@ -1,0 +1,75 @@
+﻿@model IEnumerable<RequestMaterialModel>
+
+<table class="table table-responsive-lg">
+    <thead id="door-head">
+        <tr>
+            <th class="grid-btn w-50px" style="width: 40px;">
+                <button type="button" id="door-add-button" class="btn grid-btn" onclick="addMaterialRow()">
+                    <i class="fa fa-plus add-button"></i>
+                </button>
+            </th>
+            <th>Название</th>
+            <th style="width: 35%">Количество</th>
+        </tr>
+    </thead>
+    <tbody id="itemsRows">
+        @foreach (var item in Model)
+        {
+            <partial name="_MaterialRow" model=item view-data=ViewData />
+        }
+    </tbody>
+</table>
+
+<script>
+    var materials = @Html.Raw(Json.Serialize(ViewData["Materials"]));
+
+    function lastRowInit(){
+        var newRow = $("#itemsRows").find("tr").last();
+        rowInit(newRow.data("index"));
+    }
+
+    function rowInit(index){
+        var select = $("#itemsRows").find(`tr[data-index=${index}] [data-order-item=material] select`);
+        select.selectpicker();
+
+        for (var i = 0; i < materials.length; i++) {
+            select.append(new Option(materials[i].name, materials[i].id));
+        }
+        select.selectpicker('refresh');
+        select.selectpicker('change');
+        materialChange(index);
+
+
+        $("#form").each(function () { $.data($(this)[0], 'validator', false); });
+        $.validator.unobtrusive.parse("#form");
+    }
+
+    function addMaterialRow() {
+        var url = "@Url.Action("MaterialsRowPartial", "Requests")";
+
+        $.ajax({
+            url: url,
+            cache: false,
+            success: function (html) {
+                $("#itemsRows").append(html);
+                lastRowInit();
+            },
+            error: function (error) {
+            }
+        });
+    }
+
+    function removeMaterialRow(index) {
+        $(`tr[data-index=${index}]`).remove()
+        //updateOrderCost();
+    }
+
+    function materialChange(index) {
+        var row = $("#itemsRows").find(`tr[data-index=${index}]`);
+        var materialId = row.find("[data-order-item=material] select").val();
+
+        var material = materials.find(x => x.id == materialId);
+        row.find("[data-order-item=count] [data-max-count]").text(material.count);
+        row.find("[data-order-item=count] input").attr({ "max": material.count });
+    }
+</script>

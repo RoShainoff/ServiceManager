@@ -1,0 +1,76 @@
+﻿@{
+    var showPrintButton = (bool)ViewData["ShowReportButton"];
+    var controllrName = this.ViewContext.RouteData.Values["controller"].ToString();
+}
+
+﻿<div class="widget">
+    <div class="widget-title d-flex">
+        <div class="table-title d-flex">
+            <h4 class="me-4"> @ViewData["Title"] </h4>
+            <ul class="nav nav-tabs requests-tabs">
+                @if (User.IsEmployeeOrAdmin())
+                {
+                    <li class="nav-item">
+                        <a data-filter=0 class="nav-link active" aria-current="page" href="#all">Все</a>
+                    </li>
+                    <li class="nav-item">
+                        <a data-filter=1 class="nav-link" href="#my">Мои</a>
+                    </li>
+                }
+                else
+                {
+                    <li class="nav-item">
+                        <a data-filter=1 class="nav-link active" href="#my">Мои</a>
+                    </li>
+                }
+                <li class="nav-item">
+                    <a data-filter=2 class="nav-link" href="#comlited">Завершённые</a>
+                </li>
+            </ul>
+            <h4 id="items-count" class="ms-3"> 0 </h4>
+        </div>
+        <div class="ms-auto">
+            @*<partial name="_RandomButtonPartial" />*@
+
+
+            @if (showPrintButton && User.IsInRoles("Admin, Employee"))
+            {
+                    <a href="@Url.Action("Report")" class="btn btn-primary" style="margin: -5px 0px;padding: 0.375rem 0.65rem;">
+                        <i class="fa-solid fa-print"></i>
+                    </a>
+            }
+            @*@if (User.IsInRole("Admin, Employee"))*@
+
+            @if (User.Identity.IsAuthenticated)
+            {
+                @if (User.IsInRole("Admin") ||
+                  User.IsInRole("Employee") && controllrName != "Employees" ||
+                  controllrName == "Requests")
+                {
+                    <button class="btn btn-primary" style="margin: -5px 0px;padding: 0.375rem 0.5rem;" onclick="showEditModal('@(Url.Action("Add"))')">
+                        <i class="fa-solid fa-xl fa-plus"></i>
+                    </button>
+                }
+            }
+        </div>
+    </div>
+
+    <div class="widget-full-content">
+        @Html.AjaxGrid(Url.Action("GridWithFilter", new { filter = 0 } )!, new { id = "ajax-grid"})
+        <div id="grid-loader">
+            @Html.Partial("_GridPartial", null, ViewData)
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $('.requests-tabs .nav-link').on('click', function (event) {
+            $(".requests-tabs .nav-link").removeClass("active");
+                $(event.currentTarget).addClass("active");
+                const grid = new MvcGrid(document.querySelector("#mvc-grid"));
+            grid.url.searchParams.set("filter", event.currentTarget.dataset.filter);
+            grid.reload();
+        });
+    </script>
+}

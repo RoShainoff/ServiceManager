@@ -1,0 +1,58 @@
+﻿@using ServiceManager.UI.Models.Account;
+@model LoginModel
+@{
+    ViewData["Title"] = "Авторизация";
+}
+
+<form 
+    asp-controller="Account" 
+    asp-action="Login" >
+
+    @Html.AntiForgeryToken()
+    
+    <div class="row">
+        <div class="col-md-4 offset-md-4">
+            <div class="widget widget-blue">
+                <div class="widget-title">
+                    <h3 class="text-center">Добро пожаловать</h3>
+                </div>
+                <div class="widget-content">
+
+                    <div class="form-group relative-w mb-4">
+                        @Html.TextBoxFor(m => m.Login, new { @class = "form-control", placeholder = "Логин", autofocus = "autofocus" })
+                        <i class="fa fa-user input-abs-icon"></i>
+                        <span asp-validation-for="Login" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group relative-w mb-4">
+                        @Html.PasswordFor(m => m.Password, new { @class = "form-control", placeholder = "Пароль" })
+                        <i class="fa fa-lock input-abs-icon"></i>
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+                    <div class="validation text-danger" asp-validation-summary="ModelOnly"></div>
+
+                    <div class="form-group">
+                        <div class="checkbox">
+                            <label>
+                                @Html.LabelFor(m => m.RememberMe, "Запомнить меня")
+                                @Html.CheckBoxFor(m => m.RememberMe)
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-rounded btn-iconed">
+                        <span>Войти</span>
+                        <i class="fa fa-arrow-right"></i>
+                    </button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script>
+    function loginComplete(result) {
+        location.reload();
+    }
+</script>

@@ -1,0 +1,34 @@
+﻿<button class="btn btn-primary-outline fa-shake-hover" id="random-button" style="color: #0d6efd;padding: 0px;margin: -1em 0em;">
+    <i class="fa-solid fa-2xl fa-square" style="
+        font-size: 2.725em;
+        line-height: 1em;
+        vertical-align: 0em;
+    "></i>
+</button>
+
+<script>
+    let map = new Map();
+    var num = localStorage.getItem("randomNum") ?? 1;
+    map.set(1, "-one");
+    map.set(2, "-two");
+    map.set(3, "-three");
+    map.set(4, "-four");
+    map.set(5, "-five");
+    map.set(6, "-six")
+    var diceButton = document.querySelector('#random-button i');
+    diceButton.classList.remove("fa-square");
+
+    function randomIcon() {
+        diceButton.classList.remove("fa-dice" + map.get(num));
+
+        var newNum = Math.floor(Math.random() * 5) + 1;
+        num = newNum + (newNum >= num ? 1 : 0)
+
+        diceButton.classList.add("fa-dice" + map.get(num));
+        localStorage.setItem("randomNum", num);
+    }
+    randomIcon();
+    document.querySelector('#random-button').addEventListener('mouseenter', function () {
+        randomIcon();
+    })
+</script>

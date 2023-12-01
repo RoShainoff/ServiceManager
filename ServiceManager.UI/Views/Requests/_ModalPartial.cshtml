@@ -1,0 +1,191 @@
+﻿@model ServiceManager.UI.Models.Requests.RequestModel
+@{
+    var priorities = Html.GetEnumSelectList<RequestPriority>().OrderBy(x => int.Parse(x.Value));
+    var clients = ViewData["Clients"] as IEnumerable<SelectListItem>;
+    var executors = ViewData["Executors"] as IEnumerable<SelectListItem>;
+    var serviceTypes = ViewData["ServiceTypes"] as IEnumerable<SelectListItem>;
+    var services = ViewData["Services"] as IEnumerable<SelectListItem>;
+    var materials = ViewData["Materials"] as IEnumerable<SelectListItem>;
+
+    var title = Model.Number.HasValue
+        ? $"Заявка #{Model.Number:000}"
+        : $"Новая заявка";
+
+    var readOnly = Model.Status != RequestAction.Create;
+    var userId = IdentityRepository.GetUserId();
+
+    var edit = (bool)ViewData["Edit"];
+
+    var statusText = Model.Status switch
+    {
+        RequestAction.Accept => "Принята",
+        RequestAction.Close => "Закрыта",
+        RequestAction.GoodComplete => "Завершена Успешно",
+        RequestAction.BadComplete => "Завершена Не успешно",
+        _ => "",
+    };
+}
+
+<div class="modal fade" id="modal-edit" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@title</h5>
+                @if (Model.Status != RequestAction.Create)
+                {
+                    <div class="vr" style="margin: 0px 1em"></div>
+                    <h5 class="modal-title"> @statusText </h5>
+                }
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="request-form"
+                      asp-action="Save"
+                      data-ajax="true"
+                      data-ajax-method="POST"
+                      data-ajax-success="editModalHide"
+                      data-ajax-failure="onFailed">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="@Model.Id" id="request-id" />
+                    <input type="hidden" asp-for="@Model.Number" />
+
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="form-group relative-w">
+                                <label asp-for="Text" class="control-label"></label>
+                                <textarea asp-for="Text" class="form-control" rows="4"> </textarea>
+                                <span asp-validation-for="Text" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-group relative-w">
+                                <label asp-for="Priority" class="control-label"></label>
+                                <select asp-for="Priority" class="form-control selectpicker" asp-items="@priorities"></select>
+                                <span asp-validation-for="Priority" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        @if (!edit || User.IsEmployeeOrAdmin())
+                        {
+                            <hr class="hr" />
+
+                            <div class="col-6">
+                                <div class="form-group relative-w">
+                                    <label asp-for="ClientId" class="control-label"></label>
+                                    <select asp-for="ClientId" class="form-control selectpicker" asp-items="@clients" data-size="5">
+                                        <option value="">(Не выбрано)</option>
+                                    </select>
+                                    <span asp-validation-for="ClientId" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="form-group relative-w">
+                                    <label asp-for="ExecutorId" class="control-label"></label>
+                                    <select asp-for="ExecutorId" class="form-control selectpicker" asp-items="@executors" data-size="5">
+                                        <option value="">(Не выбрано)</option>
+                                    </select>
+                                    <span asp-validation-for="ExecutorId" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <hr class="hr" />
+
+                            <div class="col-6">
+                                <div class="form-group relative-w">
+                                    <label asp-for="ServiceTypeId" class="control-label"></label>
+                                    <select asp-for="ServiceTypeId" class="form-control selectpicker" asp-items="@serviceTypes" data-size="5">
+                                        <option value="">(Не выбрано)</option>
+                                    </select>
+                                    <span asp-validation-for="ServiceTypeId" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="form-group relative-w">
+                                    <label asp-for="ServiceId" class="control-label"></label>
+                                    <select asp-for="ServiceId" class="form-control selectpicker" asp-items="@services" data-size="5">
+                                        <option value="">(Не выбрано)</option>
+                                    </select>
+                                    <span asp-validation-for="ServiceId" class="text-danger"></span>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <input type="hidden" asp-for="@Model.ClientId" />
+                            <input type="hidden" asp-for="@Model.ExecutorId" />
+                            <input type="hidden" asp-for="@Model.ServiceTypeId" />
+                            <input type="hidden" asp-for="@Model.ServiceId" />
+                        }
+
+                    </div>
+                </form>
+                @if (Model.Materials.Any())
+                {
+                    <div class="row">
+                        <hr class="hr" />
+                        <div class="col-sm-12">
+                            <label asp-for="Materials" class="control-label"></label>
+                            @(Html.Grid(Model.Materials)
+                                .Build(c =>
+                                {
+                                    c.Add(x => x.Name);
+                                    c.Add(x => x.Count)
+                                    .Formatted("{0} шт.");
+                                }).Css("table table-bordered"))
+                        </div>
+                    </div>
+                }
+
+                @if (edit && Model.Status == RequestAction.Create)
+                {
+                    <div class="row">
+                        <hr class="hr" />
+
+                        <div class="col-12 d-sm-inline-flex justify-content-between">
+                            <div class="validation" asp-validation-summary="ModelOnly"></div>
+                            <button type="submit" class="btn btn-primary btn-rounded btn-iconed" form="request-form" value="Update">
+                                <span>Сохранить</span>
+                            </button>
+                        </div>
+                    </div>
+                }
+                else if (!edit && (Model.ExecutorId == null || Model.ExecutorId == userId))
+                {
+                    <div class="row">
+                        <hr class="hr" />
+                        <div class="col-12 d-sm-inline-flex justify-content-between">
+
+                            <div>
+                                @if (Model.Status == RequestAction.Create)
+                                {
+                                    <button class="btn btn-success btn-rounded btn-iconed" onclick="execute(@((int)RequestAction.Accept))">
+                                        <i class="fa-solid fa-check"></i>
+                                        <span>Принять</span>
+                                    </button>
+
+                                    <button class="btn btn-danger btn-rounded btn-iconed" onclick="execute(@((int)RequestAction.Close))">
+                                        <i class="fa-solid fa-xmark"></i>
+                                        <span>Отменить</span>
+                                    </button>
+                                }
+                                @if (Model.Status == RequestAction.Accept ||
+                                     Model.Status == RequestAction.Expired)
+                                {
+                                    <button class="btn btn-success btn-rounded btn-iconed" onclick="execute(@((int)RequestAction.GoodComplete))">
+                                        <i class="fa-solid fa-check"></i>
+                                        <span>Закрыть успешно</span>
+                                    </button>
+
+                                    <button class="btn btn-danger btn-rounded btn-iconed" onclick="execute(@((int)RequestAction.BadComplete))">
+                                        <i class="fa-solid fa-xmark"></i>
+                                        <span>Закрыть не успешно</span>
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

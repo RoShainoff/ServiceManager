@@ -1,0 +1,15 @@
+﻿@model IEnumerable<ServiceManager.UI.Models.Identity.EmployeeTableModel>
+
+@(Html.BaseGrid(Model, columns =>
+{
+    columns.Add(m => m.FullName);
+
+    if (User.IsEmployeeOrAdmin())
+    {
+        columns.Add(m => m.RequestsWorkCount);
+        columns.Add(m => m.RequestsComplitedCount);
+    }
+
+    if (User.IsInRole("Admin"))
+        columns.AddSettingButtoms(Url);
+}))

@@ -1,0 +1,13 @@
+﻿@model IEnumerable<ServiceManager.UI.Models.Services.ServiceTypeTableModel>
+
+@(Html.BaseGrid(Model, columns =>
+{
+    columns.Add(m => m.Name)
+        .Sortable(GridSortOrder.Asc)
+        .Titled("Название");
+    columns.Add(m => m.ServiceCount)
+        .Titled("Кол-во услуг");
+
+    if (User.IsInRoles("Admin, Employee"))
+        columns.AddSettingButtoms(Url);
+}))

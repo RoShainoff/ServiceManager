@@ -1,0 +1,15 @@
+﻿@model IEnumerable<ServiceManager.UI.Models.Materials.MaterialTableModel>
+
+@(Html.BaseGrid(Model, columns =>
+{
+    columns.Add(m => m.Name)
+        .Sortable(GridSortOrder.Asc)
+        .Titled("Название");
+    columns.Add(m => m.Count)
+        .Titled("Кол-во");
+    columns.Add(m => m.RequestsCount)
+        .Titled("Кол-во заявок");
+
+    if (User.IsInRoles("Admin, Employee"))
+        columns.AddSettingButtoms(Url);
+}))

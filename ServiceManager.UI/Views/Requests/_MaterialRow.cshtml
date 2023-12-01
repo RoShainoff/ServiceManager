@@ -1,0 +1,32 @@
+﻿@model RequestMaterialModel
+@{
+    var index = @Guid.NewGuid();
+    this.ViewData.TemplateInfo.HtmlFieldPrefix = $"Materials[{index}]";
+}
+
+<tr data-index="@index">
+    <input type="hidden" name="Materials.index" autocomplete="off" value="@index" />
+
+    <td class="grid-btn">
+        <button type="button" class="btn grid-btn" onclick="removeMaterialRow('@index')">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+    </td>
+
+    <td data-order-item="material">
+        @Html.DropDownListFor(m => m.MaterialId,
+            Enumerable.Empty<SelectListItem>(),
+            new { @class = "form-control", onchange = $"materialChange('{index}')" })
+    </td>
+    <td data-order-item="count">
+        <div class="input-group">
+            @Html.EditorFor(m => m.Count, new { htmlAttributes = new { @class = "form-control", @type = "number", @min = "1", @step = "1" }})
+            <div class="input-group-append">
+                <div class="input-group-text" data-max-count>
+
+                </div>
+            </div>
+            @Html.ValidationMessageFor(m => m.Count)
+        </div>
+    </td>
+</tr>

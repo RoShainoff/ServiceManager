@@ -1,0 +1,89 @@
+﻿@model IEnumerable<ServiceManager.UI.Models.Requests.RequestTableModel>
+@{
+    var rowClassNameByPriority = new Dictionary<RequestPriority, string>
+    {
+        { RequestPriority.Low,      "table-success" },
+        { RequestPriority.Medium,   "table-warning" },
+        { RequestPriority.High,     "table-danger" }
+    };
+
+    var badgeByPriority = new Dictionary<RequestPriority, string>
+    {
+        { RequestPriority.Low,    "<span class='badge bg-success'> Низкий </span>" },
+        { RequestPriority.Medium, "<span class='badge bg-warning'> Средний </span>" },
+        { RequestPriority.High,   "<span class='badge bg-danger' > Высокий </span>" },
+    };
+
+    var badgeByStatus = new Dictionary<RequestAction, string>
+    {
+        { RequestAction.Create,         "<span class='badge bg-primary'  > Создана </span>" },
+        { RequestAction.Close,          "<span class='badge bg-secondary'> Закрыта с утратой актуальности </span>" },
+        { RequestAction.Accept,         "<span class='badge bg-success'  > Принята </span>" },
+        { RequestAction.Expired,        "<span class='badge bg-danger'   > Просрочена </span>" },
+        { RequestAction.GoodComplete,   "<span class='badge bg-primary'  > Закрыта Успешно </span>" },
+        { RequestAction.BadComplete,    "<span class='badge bg-primary'  > Закрыта Не успешно</span>" },
+    };
+
+    var userId = IdentityRepository.GetUserId();
+}
+
+@(Html.BaseGrid(Model, columns =>
+{
+    columns.Add(m => m.Number)
+        .Sortable(false)
+        .Filterable(false);
+
+    columns.Add(m => m.Status)
+        .RenderedAs(m => badgeByStatus[m.Status])
+        .Encoded(false);
+
+    columns.Add(m => m.Text)
+        .RenderedAs(m => $"<p class='cut-text'> {m.Text} </p>")
+        .Encoded(false);
+    columns.Add(m => m.Priority)
+        .RenderedAs(m => badgeByPriority[m.Priority])
+        .Encoded(false);
+
+    if (User.IsEmployeeOrAdmin())
+        columns.Add(m => m.Client);
+    if (User.IsAdmin())
+        columns.Add(m => m.Executer);
+
+    columns.Add(m => m.ServiceType);
+    columns.Add(m => m.Service);
+
+    if (User.IsClient())
+    {
+        columns.Add(m =>
+            $"<button onclick=\"showEditModal('{Url.Action("Edit", new { id = m.Id, edit = m.Status == RequestAction.Create })}')\"" +
+                $"class='btn btn-primary-outline fa-shake-hover btn-edit'>" +
+                    (m.Status == RequestAction.Create 
+                        ? $"<i class='fa-solid fa-pen'></i>" 
+                        : $"<i class='fa-solid fa-eye'></i>") +
+                $"</button>")
+            .Encoded(false)
+            .Css("col-btn-full")
+            .Width(40);
+    }
+
+    if (User.IsEmployeeOrAdmin())
+    {
+        columns.Add(m => m.Status != RequestAction.Create ? null :
+                ($"<button onclick=\"showEditModal('{Url.Action("Edit")}/{m.Id}')\"" +
+                $"class='btn btn-primary-outline fa-shake-hover btn-edit'>" +
+                    $"<i class='fa-solid fa-pen'></i>" +
+                $"</button>"))
+            .Encoded(false)
+            .Css("col-btn-full")
+            .Width(40);
+
+        columns.Add(m => userId != m.ExecuterId ? null :
+                ($"<button onclick=\"showEditModal('{Url.Action("Edit", new { id = m.Id, edit = false })}')\"" +
+                $"class='btn btn-primary-outline fa-shake-hover btn-edit'>" +
+                    $"<i class='fa-solid fa-eye'></i>" +
+                $"</button>"))
+            .Encoded(false)
+            .Css("col-btn-full")
+            .Width(40);
+    }
+}, addNumber: false))

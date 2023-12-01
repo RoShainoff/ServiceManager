@@ -1,0 +1,43 @@
+﻿@model ClientModel
+
+<div class="modal fade" id="modal-edit" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Клиент</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form asp-action="Save"
+                      data-ajax="true"
+                      data-ajax-method="POST"
+                      data-ajax-success="editModalHide"
+                      data-ajax-failure="onFailed">
+                    @Html.AntiForgeryToken()
+                    
+                    <div class="row">
+
+                        <div class="col-lg-8 border-end">
+                            @Html.HiddenFor(m => m.Client.Id)
+
+                            <partial name="_ClientPartial" model=Model.Client />
+                        </div>
+
+                        <div class="col-lg-4">
+                            @Html.HiddenFor(m => m.User.Id)
+
+                            <partial name="_UserPartial" model=Model.User />
+                        </div>
+
+                    </div>
+                    <div>
+                        <div class="validation" asp-validation-summary="ModelOnly"></div>
+                        <button type="submit" class="btn btn-primary btn-rounded btn-iconed">
+                            <span>Сохранить</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

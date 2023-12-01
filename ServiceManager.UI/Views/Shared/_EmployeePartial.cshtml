@@ -1,0 +1,42 @@
+﻿@model EmployeeDataModel
+@{
+    ViewData.TemplateInfo.HtmlFieldPrefix = "Employee";
+}
+
+<div class="row">
+    <div class="col-sm-12">
+        <div class="row">
+
+            <div class="col-sm-12">
+                <div class="form-group">
+
+                    <label asp-for="LastName" class="control-label"></label>
+                    <input asp-for="LastName" class="form-control" />
+                    <span asp-validation-for="LastName" class="text-danger"></span>
+
+                </div>
+            </div>
+
+            <div class="col-sm-12">
+                <div class="form-group">
+
+                    <label asp-for="FirstName" class="control-label"></label>
+                    <input asp-for="FirstName" class="form-control" />
+                    <span asp-validation-for="FirstName" class="text-danger"></span>
+
+                </div>
+            </div>
+
+            <div class="col-sm-12">
+                <div class="form-group">
+
+                    <label asp-for="Patronymic" class="control-label"></label>
+                    <input asp-for="Patronymic" class="form-control" />
+                    <span asp-validation-for="Patronymic" class="text-danger"></span>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

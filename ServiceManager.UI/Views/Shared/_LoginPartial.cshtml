@@ -1,0 +1,44 @@
+﻿<ul class="navbar-nav">
+    @if (User.Identity!.IsAuthenticated)
+    {
+        <li class="nav-item dropdown">
+            <a class="nav-link text-dark" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
+                <div class="position-relative">
+                    <i class="fa-regular fa-bell fa-lg fa-shake-hover" id="notify-icon"></i>
+                    <span class="position-absolute top-0 start-100 translate-middle border border-light badge rounded-pill bg-primary notify-count"
+                          style="text-align: center;
+                                 display: none">
+                    </span>
+                </div>
+            </a>
+            <ul class="dropdown-menu notify-scrollable" aria-labelledby="navbarDropdown" id="notify-container">
+                <div class="d-flex justify-content-center">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </ul>
+
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-dark user-fullname" asp-controller="Account" asp-action="Index">@(await IdentityRepository.GetFullName())</a>
+        </li>
+        <li class="nav-item">
+            <form class="form-inline" asp-controller="Account" asp-action="Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                <button type="submit" class="nav-link btn btn-link text-dark">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    Выйти
+                </button>
+            </form>
+        </li>
+    }
+    else
+    {
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-controller="Account" asp-action="Login">
+                <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                Войти
+            </a>
+        </li>
+    }
+</ul>

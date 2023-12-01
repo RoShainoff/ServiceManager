@@ -1,0 +1,95 @@
+﻿@model IEnumerable<ServiceManager.UI.Models.Requests.NotifyModel>
+@{
+    var unreadCount = Model.Count(x => !x.IsRead);
+
+    var badgeByStatus = new Dictionary<RequestAction, string>
+    {
+        { RequestAction.Create,         "<span class='badge bg-primary'> Создана </span>" },
+        { RequestAction.Close,          "<span class='badge bg-secondary'> Закрыта с утратой актуальности </span>" },
+        { RequestAction.Accept,         "<span class='badge bg-success'> Принята </span>" },
+        { RequestAction.Expired,        "<span class='badge bg-danger'> Просрочена </span>" },
+        { RequestAction.GoodComplete,   "<span class='badge bg-primary'> Закрыта Успешно </span>" },
+        { RequestAction.BadComplete,    "<span class='badge bg-primary'> Закрыта Не успешно</span>" },
+    };
+
+    var actions = new Dictionary<RequestAction, string>
+    {
+        { RequestAction.Close,          "закрыл" },
+        { RequestAction.Accept,         "принял" },
+        { RequestAction.GoodComplete,   "успешно завершил" },
+        { RequestAction.BadComplete,    "неуспешно завершил" },
+    };
+}
+
+<p class="dropdown-item-text m-0 text-center" id="notifi-any" @(unreadCount > 0 ? "" : "style=display:none")>
+    Не прочитанных уведомлений:
+    <span class="notify-count">
+        @unreadCount
+    </span>
+</p>
+<p class="dropdown-item-text m-0 text-center" id="notifi-empty" @(unreadCount == 0 ? "" : "style=display:none")>
+    Не прочитанные уведомления отсутствуют
+</p>
+
+@if (Model.Any())
+{
+    @foreach (var item in Model)
+    {
+        <div class="dropdown-item border-top notify">
+            <a href="#" onclick="notifyClick('@(Url.Action("Edit", "Requests", new {id = item.Request.Id}))')">
+                <p class="m-0">
+                    <small>
+                        @item.Date.ToString("g")
+                    </small>
+                </p>
+                <p class="m-0">
+                    <div>
+                        @if (!string.IsNullOrEmpty(item.Text))
+                        {
+                            <span>@item.Text</span>
+                            <partial name="_NotifyRequestButton" model=item />
+                        }
+                        else if (item.Action == RequestAction.Edit)
+                        {
+                            @if (item.Executer == null)
+                            {
+                                <span>
+                                    Система изменила заявку
+                                    <partial name="_NotifyRequestButton" model=item />
+                                </span>
+                            }
+                            else
+                            {
+                                <span>
+                                    <u>@item.Executer.Name</u> изменил заявку
+                                    <partial name="_NotifyRequestButton" model=item />
+                                </span>
+                            }
+                        }
+                        else
+                        {
+                            @if (item.Executer == null)
+                            {
+                                <u>Система</u>
+                            }
+                            else
+                            {
+                                <u>@item.Executer.Name</u>
+                            }
+                            <span> @actions[item.Action] заявку</span>
+
+                            <partial name="_NotifyRequestButton" model=item />
+                        }
+                    </div>
+                </p>
+
+            </a>
+
+            <div class="notify-read-btn">
+                <button class="btn" style="padding:0px" onclick="read(this)" data-notify-id="@item.Id">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+        </div>
+    }
+}

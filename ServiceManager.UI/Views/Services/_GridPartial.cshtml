@@ -1,0 +1,21 @@
+﻿@model IEnumerable<ServiceManager.UI.Models.Services.ServiceTableModel>
+
+@(Html.BaseGrid(Model, columns =>
+{
+    columns.Add(m => m.Name)
+        .Sortable(GridSortOrder.Asc)
+        .Titled("Название");
+    columns.Add(m => m.Cost)
+        .Titled("Цена")
+        .Formatted("{0:N} руб");
+    columns.Add(m => m.Hours)
+        .Titled("Время выполнения")
+        .Formatted("{0} ч");
+    columns.Add(m => m.ServiceType == null ? null : m.ServiceType.Name)
+        .Titled("Очередь");
+    columns.Add(m => m.RequestCount)
+        .Titled("Кол-во заявок");
+
+    if (User.IsInRoles("Admin, Employee"))
+        columns.AddSettingButtoms(Url);
+}))

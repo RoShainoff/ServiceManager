@@ -1,0 +1,38 @@
+﻿@model ServiceManager.UI.Models.Base.NamedModel
+
+<div class="modal fade" id="modal-edit" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Очередь</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form asp-action="Save"
+                      data-ajax="true"
+                      data-ajax-method="POST"
+                      data-ajax-success="editModalHide"
+                      data-ajax-failure="onFailed">
+                    @Html.AntiForgeryToken()
+                    @Html.HiddenFor(x => x.Id)
+
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="mb-3 form-group relative-w">
+                                <label asp-for="Name" class="control-label"></label>
+                                <input asp-for="Name" class="form-control" />
+                                <span asp-validation-for="Name" class="text-danger"></span>
+                            </div>
+
+                            <div class="validation" asp-validation-summary="ModelOnly"></div>
+
+                            <button type="submit" class="btn btn-primary btn-rounded btn-iconed">
+                                <span>Сохранить</span>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

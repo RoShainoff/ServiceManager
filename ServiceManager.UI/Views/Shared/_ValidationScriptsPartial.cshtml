@@ -1,0 +1,42 @@
+﻿<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+
+<script>
+    /* Чтоб поле считалос числом */
+    var originalNumber = $.validator.methods.number;
+    $.validator.methods.number = function (value, element) {
+        var fixedValue = parseFloat(value.toString().replace(",", "."));
+        return originalNumber.call($.validator.prototype, fixedValue, element);
+    };
+    /* Чтоб отрабатывала валидация по range */
+    var originalRange = $.validator.methods.range;
+    $.validator.methods.range = function (value, element, param) {
+        var fixedValue = parseFloat(value.toString().replace(",", "."));
+        return originalRange.call($.validator.prototype, fixedValue, element, param);
+    };
+    /* Чтоб не выводить стандартное сообщение 'The {0} field is required.' */
+    var originalCustomMessage = $.validator.prototype.customMessage;
+    $.validator.prototype.customMessage = function (name, method) {
+        if (method == "required") return undefined;
+        return originalCustomMessage.call(this, name, method);
+    };
+
+    jQuery.extend(jQuery.validator.messages, {
+        required: "Заполните поле",
+        remote: "Исправьте это поле",
+        email: "Введите действительный адрес электронной почты",
+        url: "Введите корректный адрес",
+        date: "Введите правильную дату",
+        dateISO: "Введите правильную дату (ISO)",
+        number: "Введите правильное число",
+        digits: "Вводите только цифры",
+        equalTo: "Введите то же значение еще раз",
+        maxlength: $.validator.format("Введите не более {0} символов"),
+        minlength: $.validator.format("Введите не менее {0} символов"),
+        rangelength: $.validator.format("Введите значение от {0} до {1} символов"),
+        range: $.validator.format("Введите значение от {0} до {1}"),
+        max: $.validator.format("Введите значение, меньшее или равное {0}"),
+        min: $.validator.format("Введите значение больше или равное {0}"),
+        step: $.validator.format("Введите число, кратное {0}")
+    });
+</script>

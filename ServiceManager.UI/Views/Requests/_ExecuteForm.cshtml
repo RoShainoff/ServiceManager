@@ -1,0 +1,116 @@
+﻿@model ServiceManager.UI.Models.Requests.TransitionModel
+@{
+    var serviceTypes = ViewData["ServiceTypes"] as IEnumerable<SelectListItem>;
+    var services = ViewData["Services"] as IEnumerable<SelectListItem>;
+    var materials = ViewData["Materials"] as IEnumerable<SelectListItem>;
+
+    var noteRequared =
+        Model.Action == RequestAction.Close ||
+        Model.Action == RequestAction.BadComplete;
+
+    var actionText = Model.Action switch
+    {
+        RequestAction.Accept => "Принять",
+        RequestAction.Close => "Отменить",
+        RequestAction.GoodComplete => "Успешно",
+        RequestAction.BadComplete => "Не успешно",
+        _ => null,
+    };
+}
+
+<div class="modal fade" id="modal-execute" tabindex="-1" aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@($"Заявка #{Model.Number:000}")</h5>
+                <div class="vr" style="margin: 0px 1em"></div>
+                <h5 class="modal-title"> @actionText </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+
+                    <div class="col-12">
+                        <div class="form-group relative-w">
+                            <label asp-for="Text" class="control-label"></label>
+                            <textarea asp-for="Text" readonly class="form-control" rows="4"> </textarea>
+                            <span asp-validation-for="Text" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                </div>
+                <form id="execute-form" 
+                    asp-action="Execute"
+                    data-ajax="true"
+                    data-ajax-method="POST"
+                    data-ajax-success="executeHide"
+                    data-ajax-failure="onFailed">
+
+                    @Html.AntiForgeryToken()
+                    @Html.HiddenFor(x => x.RequestId)
+                    @Html.HiddenFor(x => x.Action)
+
+                    <div class="row">
+                        @if (Model.Action == RequestAction.Accept)
+                        {
+                            <div class="col-6">
+                                <div class="form-group relative-w">
+                                    <label asp-for="ServiceTypeId" class="control-label"></label>
+                                    <select required asp-for="ServiceTypeId" class="form-control selectpicker" asp-items="@serviceTypes" data-size="5">
+                                        <option value="">(Не выбрано)</option>
+                                    </select>
+                                    <span asp-validation-for="ServiceTypeId" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="form-group relative-w">
+                                    <label asp-for="ServiceId" class="control-label"></label>
+                                    <select required asp-for="ServiceId" class="form-control selectpicker" asp-items="@services" data-size="5">
+                                        <option value="">(Не выбрано)</option>
+                                    </select>
+                                    <span asp-validation-for="ServiceId" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <hr class="hr" />
+                        }
+                    </div>
+
+                    @if (Model.Action == RequestAction.GoodComplete)
+                    {
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <label asp-for="Materials" class="control-label"></label>
+                                    <partial name="_MaterialsTable" view-data=ViewData model="Model.Materials"/>
+                                </div>
+                            </div>
+                    }
+                    <div class="row">
+
+                        <div class="col-12">
+                            <div class="form-group relative-w">
+                                <label asp-for="Note" class="control-label"></label>
+                                @if (noteRequared)
+                                {
+                                    <textarea asp-for="Note" class="form-control" rows="4" placeholder="(Обязательно)" requared> </textarea>
+                                }
+                                else
+                                {
+                                    <textarea asp-for="Note" class="form-control" rows="4" placeholder="(Необязательно)"> </textarea>
+                                }
+                                <span asp-validation-for="Note" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <div class="validation" asp-validation-summary="ModelOnly"></div>
+
+                <button type="submit" class="btn btn-primary btn-rounded btn-iconed" form="execute-form" value="Update">
+                    <span>Подтвердить</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

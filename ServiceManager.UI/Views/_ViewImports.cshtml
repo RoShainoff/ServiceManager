@@ -1,0 +1,17 @@
+﻿@using ServiceManager.Core.Entities.Identity
+@using ServiceManager.Core.Entities.Services
+@using ServiceManager.Core.Models.Identity
+@using ServiceManager.Core.Enums
+@using ServiceManager.UI
+@using ServiceManager.UI.Models
+@using ServiceManager.UI.Models.Requests
+@using NonFactors.Mvc.Grid
+@using ServiceManager.UI.Extensions
+
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<User> SignInManager
+@inject UserManager<User> UserManager
+
+@inject ServiceManager.Core.Repositories.IdentityRepository IdentityRepository
+
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers

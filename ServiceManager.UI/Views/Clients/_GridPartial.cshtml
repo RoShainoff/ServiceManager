@@ -1,0 +1,22 @@
+﻿@model IEnumerable<ServiceManager.UI.Models.Identity.ClientTableModel>
+
+@(Html.BaseGrid(Model, columns =>
+{
+    columns.Add(m => m.FullName);
+    columns.Add(m => m.Email);
+    columns.Add(m => m.PhoneNumber);
+    columns.Add(m => m.RoomName);
+
+    if (User.IsEmployeeOrAdmin())
+    {
+        columns.Add(m => m.RequestsAllCount)
+            .Filterable(false);
+        columns.Add(m => m.RequestsWorkCount)
+            .Filterable(false);
+        columns.Add(m => m.RequestsComplitedCount)
+            .Filterable(false);
+    }
+
+    if (User.IsInRoles("Admin, Employee"))
+        columns.AddSettingButtoms(Url);
+}))

@@ -1,0 +1,43 @@
+﻿@model EmployeeModel
+
+<div class="modal fade" id="modal-edit" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Сотрудник</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form asp-action="Save"
+                      data-ajax="true"
+                      data-ajax-method="POST"
+                      data-ajax-success="editModalHide"
+                      data-ajax-failure="onFailed">
+                    @Html.AntiForgeryToken()
+
+                    <div class="row">
+
+                        <div class="col-lg-6 border-end">
+                            @Html.HiddenFor(m => m.Employee.Id)
+
+                            <partial name="_EmployeePartial" model=Model.Employee />
+                        </div>
+
+                        <div class="col-lg-6">
+                            @Html.HiddenFor(m => m.User.Id)
+
+                            <partial name="_UserPartial" model=Model.User />
+                        </div>
+
+                    </div>
+                    <div>
+                        <div class="validation" asp-validation-summary="ModelOnly"></div>
+                        <button type="submit" class="btn btn-primary btn-rounded btn-iconed">
+                            <span>Сохранить</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
